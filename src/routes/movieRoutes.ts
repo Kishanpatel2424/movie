@@ -1,10 +1,11 @@
 import { Router, Request, Response } from "express";
-import movieDBService from "../services/MovieDBService";
+import {MovieDBService} from "../services/MovieDBService";
 import {PopularMoviesOptions} from "../types/Interfaces";
 import {sendError, sendResponse} from "../middlewares/responseHandler";
+import axiosClient from "../middlewares/axiosMiddleware";
 
 const movieRouter = Router();
-
+const movieDBService = new MovieDBService(axiosClient);
 movieRouter.get('/popular', async (req: Request, res: Response) => {
     try {
         const options: Partial<PopularMoviesOptions> = {
