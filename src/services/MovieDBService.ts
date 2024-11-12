@@ -32,18 +32,18 @@ axiosRetry(axios, {
         }
     },
 });
-class MovieDBService {
+export class MovieDBService {
     private apiKey: string;
     private baseUrl: string;
     private client: AxiosInstance;
     private movieDiscoveryPath: string;
     private movieCreditPath: string;
-    constructor() {
+    constructor(client?: AxiosInstance) {
         this.movieDiscoveryPath='/discover/movie';
         this.movieCreditPath='/movie'
         this.apiKey = movieServiceApiConfig.accessToken;
         this.baseUrl = movieServiceApiConfig.baseUrl;
-        this.client = axios.create({
+        this.client = client || axios.create({
             baseURL: this.baseUrl,
             headers: {
                 accept:'application/json',
@@ -101,5 +101,3 @@ class MovieDBService {
         });
     };
 }
-
-export default new MovieDBService();
