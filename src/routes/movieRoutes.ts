@@ -1,21 +1,21 @@
-import { Router, Request, Response } from "express";
-import {MovieDBService} from "../services/MovieDBService";
-import {PopularMoviesOptions} from "../types/Interfaces";
-import {sendError, sendResponse} from "../middlewares/responseHandler";
+import { Router, Request, Response, NextFunction } from "express";
+import { MovieDBService } from "../services/MovieDBService";
+import { PopularMoviesOptions } from "../types/Interfaces";
+import { sendError, sendResponse } from "../middlewares/responseHandler";
 import axiosClient from "../middlewares/axiosMiddleware";
+import {validateYear} from "../middlewares/requestValidations";
+
 
 const movieRouter = Router();
 const movieDBService = new MovieDBService(axiosClient);
-movieRouter.get('/popular', async (req: Request, res: Response) => {
+
+
+movieRouter.get('/popular', validateYear, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const options: Partial<PopularMoviesOptions> = {
             page: 1,
-            sort_by: 'popularity.des',
-            // include_adult: req.query.include_adult === 'false',
-            // include_video: req.query.include_video === 'false',
-            // language: req.query.language as string,
-            // region: req.query.region as string,
-            primary_release_year: req.query.year ? parseInt(req.query.year as string) : 2024,
+            sort_by: 'popularity.desc',
+            primary_release_year: req.query.year ? parseInt(req.query.year as string) : new Date().getFullYear(),
         };
 
         const popularMovies = await movieDBService.getPopularMoviesWithCredits(options);
@@ -24,6 +24,5 @@ movieRouter.get('/popular', async (req: Request, res: Response) => {
         sendError(res, 500, 'Error fetching popular movies');
     }
 });
-
 
 export default movieRouter;
