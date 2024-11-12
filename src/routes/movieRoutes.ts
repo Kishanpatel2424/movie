@@ -17,10 +17,12 @@ movieRouter.get('/popular', async (req: Request, res: Response) => {
             primary_release_year: req.query.year ? parseInt(req.query.year as string) : 2024,
         };
 
-        const popularMovies = await movieDBService.getPopularMovies(options);
+        const popularMovies = await movieDBService.getPopularMoviesWithCredits(options);
         sendResponse(res, 200, popularMovies);
     } catch (error: any) {
         sendError(res, 500, 'Error fetching popular movies');
     }
 });
+
+
 export default movieRouter;
