@@ -30,7 +30,7 @@ Create a `.env` file in the root directory and add the following variables:
 
 To start the server, use:
 ```bash
-npm start
+npm start && npm serve
 ```
 
 The application will run on `http://localhost:3000` by default, or on the port specified in your `.env` file.
