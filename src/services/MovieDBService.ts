@@ -11,46 +11,18 @@ import {
     PopularMoviesOptions
 } from '../types/Interfaces';
 
-
-axiosRetry(axios, {
-    retries: 3,
-    retryDelay: (...arg) => axiosRetry.exponentialDelay(...arg, 1000),
-    retryCondition(error) {
-        switch (error.response?.status) {
-            //retry only if status is 500 or 501
-            case 500:
-            case 501:
-                return true;
-            default:
-                return false;
-        }
-    },
-    onRetry: (retryCount, error, requestConfig) => {
-        logger.info(`retry count: `, retryCount);
-        if(retryCount == 2) {
-            requestConfig.url = movieServiceApiConfig.baseUrl+'/200'
-        }
-    },
-});
 export class MovieDBService {
     private apiKey: string;
     private baseUrl: string;
     private client: AxiosInstance;
     private movieDiscoveryPath: string;
     private movieCreditPath: string;
-    constructor(client?: AxiosInstance) {
+    constructor(axiosClient: AxiosInstance) {
         this.movieDiscoveryPath='/discover/movie';
         this.movieCreditPath='/movie'
         this.apiKey = movieServiceApiConfig.accessToken;
         this.baseUrl = movieServiceApiConfig.baseUrl;
-        this.client = client || axios.create({
-            baseURL: this.baseUrl,
-            headers: {
-                accept:'application/json',
-                Authorization: `Bearer ${this.apiKey}`
-            }
-        });
-
+        this.client = axiosClient;
 
     }
 

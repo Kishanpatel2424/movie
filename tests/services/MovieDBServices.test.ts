@@ -12,7 +12,6 @@ jest.mock('../../src/middlewares/logger', () => ({
 
 describe('MovieDBService', () => {
     let movieDBService: MovieDBService;
-    let mockedAxiosInstance:any;
     let mockedAxios: jest.Mocked<AxiosInstance>;
     beforeEach(() => {
         mockedAxios = {
