@@ -6,6 +6,7 @@ import movieServiceApiConfig from '../config/MovieServiceApiConfig';
 
 const axiosClient: AxiosInstance = axios.create({
     baseURL: movieServiceApiConfig.baseUrl,
+    timeout: 1000,
     headers: {
         accept: 'application/json',
         Authorization: `Bearer ${movieServiceApiConfig.accessToken}`,
