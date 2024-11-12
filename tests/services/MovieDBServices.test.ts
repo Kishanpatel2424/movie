@@ -1,5 +1,6 @@
 import {MovieDBService} from "../../src/services/MovieDBService";
 import axios, {AxiosInstance} from 'axios';
+
 import logger from "../../src/middlewares/logger";
 import {CreditorsApiResponse, MovieApiResponse, popularMovieResponse} from "../../src/types/Interfaces";
 
@@ -13,11 +14,12 @@ jest.mock('../../src/middlewares/logger', () => ({
 describe('MovieDBService', () => {
     let movieDBService: MovieDBService;
     let mockedAxios: jest.Mocked<AxiosInstance>;
+
     beforeEach(() => {
         mockedAxios = {
             get: jest.fn(),
-            post: jest.fn(),
         } as unknown as jest.Mocked<AxiosInstance>;
+
         movieDBService = new MovieDBService(mockedAxios);
         jest.clearAllMocks();
     });
@@ -27,12 +29,8 @@ describe('MovieDBService', () => {
             const mockData: { results: { release_date: string; vote_average: number; id: number; title: string }[] } = {
                 results: [{ id: 1, title: 'Movie 1', release_date: '2024-01-01', vote_average: 8.5 }],
             };
-
-
             mockedAxios.get.mockResolvedValueOnce({ data: mockData });
-
             const result = await movieDBService.getPopularMovies({});
-
             expect(mockedAxios.get).toHaveBeenCalledWith('/discover/movie', { params: {} });
             expect(result).toEqual(mockData);
         });
@@ -104,4 +102,19 @@ describe('MovieDBService', () => {
             expect(result).toEqual(['Editor 1']);
         });
     });
+    describe('Axios Retry Logic', () => {
+
+    it('should stop retrying on a non-retryable error (e.g., 404)', async () => {
+            const errorResponse = { response: { status: 404, data: 'Not Found' } };
+
+            mockedAxios.get.mockRejectedValueOnce(errorResponse);
+
+            await expect(movieDBService.getPopularMovies()).rejects.toThrow('Failed to fetch data from endpoint: /discover/movie');
+
+            // Verify axios.get was called only once since 404 is not a retryable status
+            expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+        });
+    });
 });
+
+
