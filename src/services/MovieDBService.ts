@@ -2,7 +2,14 @@ import axios, {AxiosError, AxiosInstance, AxiosRequestConfig} from 'axios';
 import axiosRetry from 'axios-retry';
 import movieServiceApiConfig from "../config/MovieServiceApiConfig";
 import logger from "../middlewares/logger"
-import {PopularMoviesOptions} from '../types/Interfaces';
+import {
+    Creditors,
+    CreditorsApiResponse,
+    Movie,
+    MovieApiResponse,
+    popularMovieResponse,
+    PopularMoviesOptions
+} from '../types/Interfaces';
 
 
 axiosRetry(axios, {
@@ -64,15 +71,35 @@ class MovieDBService {
             throw new Error(`Failed to fetch data from endpoint: ${endpoint}`);
         }
     }
-    public async getPopularMovies(options: PopularMoviesOptions = {}): Promise<any[]> {
+    public async getPopularMovies(options: PopularMoviesOptions = {}): Promise<any> {
         // Await the promise and handle it as an axios response
-        return await this.makeGetRequest<any>(this.movieDiscoveryPath, {params:options});
-
+        return await this.makeGetRequest<MovieApiResponse[]>(this.movieDiscoveryPath, {params:options});
     }
 
-    public async getCreditsForMovies(movieId: string): Promise<any[]> {
-        return await this.makeGetRequest<any[]>(`${this.movieDiscoveryPath}/${movieId}/credits`);
+    public async getCreditsForMovies(movieId: string): Promise<any> {
+        return await this.makeGetRequest<CreditorsApiResponse[]>(`${this.movieCreditPath}/${movieId}/credits`);
     }
+
+    public async getPopularMoviesWithCredits(options: PopularMoviesOptions = {}): Promise<any[]> {
+
+        const movies = await this.getPopularMovies(options);
+
+        const moviesWithCreditsPromises = movies.results.map(async (movie:Movie) => {
+            const creditsResponse = await this.getCreditsForMovies(movie.id.toString());
+            const editors = this.editorsName(creditsResponse.crew, 'Editing')
+            return new popularMovieResponse(movie, editors);
+        });
+
+        return await Promise.all(moviesWithCreditsPromises);
+    }
+    private editorsName = function (crew:Creditors[], knownForDepartment: string) {
+        return crew.filter((names) => {
+            return names.known_for_department === knownForDepartment;
+        }).map(names => {
+
+            return names.name;
+        });
+    };
 }
 
 export default new MovieDBService();
