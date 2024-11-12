@@ -1,5 +1,4 @@
-import axios, {AxiosError, AxiosInstance, AxiosRequestConfig} from 'axios';
-import axiosRetry from 'axios-retry';
+import {AxiosError, AxiosInstance, AxiosRequestConfig} from 'axios';
 import movieServiceApiConfig from "../config/MovieServiceApiConfig";
 import logger from "../middlewares/logger"
 import {
@@ -44,7 +43,7 @@ export class MovieDBService {
         }
     }
     public async getPopularMovies(options: PopularMoviesOptions = {}): Promise<any> {
-        // Await the promise and handle it as an axios response
+
         return await this.makeGetRequest<MovieApiResponse[]>(this.movieDiscoveryPath, {params:options});
     }
 

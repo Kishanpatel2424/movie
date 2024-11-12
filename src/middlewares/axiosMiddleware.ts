@@ -1,5 +1,5 @@
-// src/middlewares/AxiosMiddleware.ts
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
+
+import axios, { AxiosInstance } from 'axios';
 import axiosRetry from 'axios-retry';
 import logger from './logger';
 import movieServiceApiConfig from '../config/MovieServiceApiConfig';
@@ -28,8 +28,9 @@ axiosRetry(axios, {
     },
     onRetry: (retryCount, error, requestConfig) => {
         logger.info(`retry count: `, retryCount);
-        if(retryCount == 3) {
-            requestConfig.url = movieServiceApiConfig.baseUrl+'/200'
+        logger.info(retryCount)
+        if(retryCount == 2) {
+            requestConfig.url = movieServiceApiConfig.baseUrl
         }
     },
 });
